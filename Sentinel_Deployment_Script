@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Search for the SentinelAgent .deb file in the current directory
+SENTINEL_AGENT_FILE=$(find . -maxdepth 1 -type f -name 'SentinelAgent_linux*.deb')
+
+# Specify the site token
+SITE_TOKEN="Put_Site_Token_Here"
+
+# Check if the SentinelAgent file exists
+if [ -z "$SENTINEL_AGENT_FILE" ]; then
+    echo "SentinelAgent file not found in the current directory!"
+    exit 1
+fi
+
+# Install the SentinelAgent package using dpkg
+sudo dpkg -i "$SENTINEL_AGENT_FILE"
+
+# Check the installation status
+if [ $? -eq 0 ]; then
+    echo "SentinelAgent installed successfully."
+
+    # Set the site token
+    sudo /opt/sentinelone/bin/sentinelctl management token set "$SITE_TOKEN"
+
+    # Start the SentinelAgent control service
+    sudo /opt/sentinelone/bin/sentinelctl control start
+
+    # Check the status of the SentinelAgent control service
+    sudo /opt/sentinelone/bin/sentinelctl control status
+
+    # Display the version information
+    sudo /opt/sentinelone/bin/sentinelctl version
+else
+    echo "Failed to install SentinelAgent."
+fi
